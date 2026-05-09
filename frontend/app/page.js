@@ -75,7 +75,7 @@ export default function LandingPage() {
           <span style={{ fontFamily: 'var(--display)', fontSize: 26, letterSpacing: '-0.02em' }}>HOOKLINE</span>
           <span style={{ fontFamily: 'var(--mono)', fontSize: 10, opacity: 0.6, padding: '2px 6px', border: '1.5px dashed var(--ink)', borderRadius: 4, marginLeft: 4 }}>BETA</span>
         </div>
-        <nav style={{ display: 'flex', gap: 20, marginLeft: 24, fontFamily: 'var(--mono)', fontSize: 13 }}>
+        <nav className="hl-landing-nav-links" style={{ display: 'flex', gap: 20, marginLeft: 24, fontFamily: 'var(--mono)', fontSize: 13 }}>
           {[['#how', 'how it works'], ['#writers', 'for writers'], ['#artists', 'for artists'], ['#pricing', 'pricing'], ['#faq', 'faq']].map(([href, label]) => (
             <a key={href} href={href} style={{ color: 'inherit', textDecoration: 'none', opacity: 0.75 }}>{label}</a>
           ))}
@@ -110,10 +110,10 @@ export default function LandingPage() {
             a marketplace for songwriters and the artists who steal from them (legally). post a hook, set a price, get paid in 48 hours. no labels, no middlemen, no ai slop.
           </div>
 
-          <div style={{ display: 'flex', gap: 14, marginTop: 32, flexWrap: 'wrap', alignItems: 'center' }}>
-            <BigBtn size="lg" color="var(--lime)" onClick={() => goAuth('register')}>I'M A WRITER →</BigBtn>
-            <BigBtn size="lg" color="var(--pink)" ink="var(--bg)" onClick={() => goAuth('register')}>I'M AN ARTIST →</BigBtn>
-            <span onClick={() => goAuth('login')} style={{ fontFamily: 'var(--mono)', fontSize: 13, opacity: 0.7, borderBottom: '2px solid var(--ink)', cursor: 'pointer', marginLeft: 8 }}>already have an account? log in</span>
+          <div className="hl-hero-cta" style={{ marginTop: 32 }}>
+            <BigBtn size="lg" color="var(--lime)" onClick={() => goAuth('register')} style={{ width: '100%', maxWidth: 280 }}>I'M A WRITER →</BigBtn>
+            <BigBtn size="lg" color="var(--pink)" ink="var(--bg)" onClick={() => goAuth('register')} style={{ width: '100%', maxWidth: 280 }}>I'M AN ARTIST →</BigBtn>
+            <span onClick={() => goAuth('login')} style={{ fontFamily: 'var(--mono)', fontSize: 13, opacity: 0.7, borderBottom: '2px solid var(--ink)', cursor: 'pointer' }}>already have an account? log in</span>
           </div>
         </section>
 
