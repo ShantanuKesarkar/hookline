@@ -53,7 +53,7 @@ export default function BrowsePage() {
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 0', fontFamily: 'var(--mono)', opacity: 0.5 }}>loading hooks...</div>
         ) : filtered.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 28 }}>
+          <div className="hl-grid-4">
             {filtered.map(l => <LyricsCard key={l.id} lyric={l} size="sm" />)}
           </div>
         ) : (

@@ -35,7 +35,7 @@ export default function ConditionalShell({ children }) {
   return (
     <>
       <Navbar />
-      <main style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 32px' }}>
+      <main className="hl-page">
         {children}
       </main>
       <Footer />

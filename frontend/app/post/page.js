@@ -76,7 +76,7 @@ export default function SellPage() {
         <div style={{ marginTop: 16, background: 'var(--pink)', color: 'var(--ink)', fontFamily: 'var(--mono)', fontSize: 12, padding: '10px 14px', borderRadius: 8, border: '2px solid var(--ink)' }}>{error}</div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 32, marginTop: 36 }}>
+      <div className="hl-split-narrow" style={{ marginTop: 36 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Field label="title" sub="make it loud"><input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. PARKING LOT MESSIAH" style={fieldStyle} /></Field>
           <Field label="teaser" sub="2 lines max · public preview">

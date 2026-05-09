@@ -86,7 +86,7 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 32px' }}>
+      <div className="hl-landing-main">
 
         {/* HERO */}
         <section style={{ position: 'relative', padding: '40px 0 60px', overflow: 'hidden' }}>
@@ -125,7 +125,7 @@ export default function LandingPage() {
         {/* WHAT'S THE DEAL — 3 cards */}
         <section style={{ marginTop: 80 }}>
           <SectionHeader accent="var(--lime)">what's the deal?</SectionHeader>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          <div className="hl-deal">
             {[
               { emoji: '✍️', color: 'var(--pink)', title: 'writers post hooks', body: "unfinished verses, full songs, leftover bridges — list 'em with a teaser, set the price, lock the rest.", rotate: -0.6 },
               { emoji: '🎤', color: 'var(--lime)', title: 'artists buy licenses', body: 'preview the snippet, vibe-check the writer, pick your license (non-ex / ex / make-an-offer), pay, get the full lyric in 60 seconds.', rotate: 0 },
@@ -143,7 +143,7 @@ export default function LandingPage() {
         {/* HOW IT WORKS */}
         <section id="how" style={{ marginTop: 100 }}>
           <SectionHeader accent="var(--pink)">how it works</SectionHeader>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28 }}>
+          <div className="hl-split">
 
             {/* Writers */}
             <div id="writers" style={{ padding: 28, border: '3px solid var(--ink)', borderRadius: 16, background: 'var(--bg)', boxShadow: '6px 6px 0 var(--ink)', position: 'relative' }}>
@@ -189,7 +189,7 @@ export default function LandingPage() {
         <section style={{ marginTop: 100 }}>
           <SectionHeader accent="var(--blue)" right={<div style={{ fontFamily: 'var(--mono)', fontSize: 12, opacity: 0.7 }}>🔒 sign up to unlock</div>}>a peek inside</SectionHeader>
           <div style={{ position: 'relative' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 20 }}>
+            <div className="hl-peek-grid">
               {PEEK_COVERS.map(l => (
                 <div key={l.id} style={{ filter: 'blur(2px)', opacity: 0.7, pointerEvents: 'none' }}>
                   <LyricCover lyric={l} size={170} />
@@ -208,7 +208,7 @@ export default function LandingPage() {
         {/* TESTIMONIALS */}
         <section style={{ marginTop: 100 }}>
           <SectionHeader accent="var(--orange)">what they're saying</SectionHeader>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          <div className="hl-testimonials">
             {TESTIMONIALS.map((t, i) => (
               <div key={i} style={{ padding: 24, border: '2.5px solid var(--ink)', borderRadius: 14, background: 'var(--bg)', boxShadow: '5px 5px 0 var(--ink)', position: 'relative' }}>
                 <div style={{ fontFamily: 'var(--display)', fontSize: 64, lineHeight: 0.6, color: 'var(--lime)', position: 'absolute', top: 16, right: 18 }}>"</div>
@@ -228,7 +228,7 @@ export default function LandingPage() {
         {/* PRICING */}
         <section id="pricing" style={{ marginTop: 100 }}>
           <SectionHeader accent="var(--lime)">pricing (it's simple)</SectionHeader>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'start' }}>
+          <div className="hl-pricing">
             {[
               { title: 'browse', price: 'free', color: 'var(--bg)', features: ['unlimited browsing', 'preview every snippet', 'save & follow', 'no signup fees'], cta: 'start exploring' },
               { title: 'buy a license', price: 'pay\nper hook', color: 'var(--lime)', features: ['non-ex from $80', 'exclusive from $1k', 'instant download', 'license pdf included', '7-day refund'], cta: 'shop lyrics', featured: true },

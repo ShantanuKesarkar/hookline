@@ -51,7 +51,7 @@ export default function WriterProfilePage({ params }) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', marginTop: 32, border: '2.5px solid var(--ink)', borderRadius: 12, overflow: 'hidden' }}>
+      <div className="hl-stats-4" style={{ marginTop: 32, border: '2.5px solid var(--ink)', borderRadius: 12, overflow: 'hidden' }}>
         {[
           ['lyrics sold', writer.sold_count ?? 0],
           ['followers', formatFollowers(writer.followers)],
@@ -68,7 +68,7 @@ export default function WriterProfilePage({ params }) {
       <div style={{ marginTop: 56 }}>
         <SectionHeader accent="var(--lime)">lyrics by {writer.handle}</SectionHeader>
         {lyrics.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
+          <div className="hl-grid-3" style={{ gap: 32 }}>
             {lyrics.map(l => <LyricsCard key={l.id} lyric={l} size="md" />)}
           </div>
         ) : (

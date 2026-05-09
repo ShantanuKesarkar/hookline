@@ -67,7 +67,7 @@ export default function LyricDetailPage({ params }) {
         <span style={{ opacity: 0.6 }}>{lyric.title}</span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'flex-start' }}>
+      <div className="hl-split-wide">
         <div>
           <div style={{ position: 'relative', display: 'inline-block' }}>
             <LyricCover lyric={{ ...lyric, cover: coverData }} size={460} />
@@ -167,7 +167,7 @@ export default function LyricDetailPage({ params }) {
       {related.length > 0 && (
         <div style={{ marginTop: 80 }}>
           <SectionHeader accent="var(--orange)">more from {writer.handle}</SectionHeader>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 28 }}>
+          <div className="hl-grid-4">
             {related.map(l => <LyricsCard key={l.id} lyric={l} size="sm" />)}
           </div>
         </div>

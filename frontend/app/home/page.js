@@ -72,7 +72,7 @@ export default function HomePage() {
         {!loaded ? (
           <div style={{ fontFamily: 'var(--mono)', fontSize: 13, opacity: 0.5, padding: '40px 0' }}>loading...</div>
         ) : trending.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 28 }}>
+          <div className="hl-grid-4">
             {trending.map(l => <LyricsCard key={l.id} lyric={l} size="sm" />)}
           </div>
         ) : (
@@ -90,7 +90,7 @@ export default function HomePage() {
             </h2>
             <div style={{ fontFamily: 'var(--mono)', fontSize: 12, opacity: 0.7 }}>outbid? we'll dm u</div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
+          <div className="hl-grid-3" style={{ gap: 32 }}>
             {bidding.map(l => {
               const coverData = { bg: l.cover?.bg ?? '#C6FF3D', ink: l.cover?.ink ?? '#0E0E10', emoji: l.cover?.emoji ?? '🎤', shape: l.cover?.shape ?? 'rect' };
               return (
@@ -119,7 +119,7 @@ export default function HomePage() {
           <SectionHeader accent="var(--blue)" right={<Link href="/writers" style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'inherit', borderBottom: '2px solid var(--ink)' }}>more writers →</Link>}>
             writers we're obsessed with
           </SectionHeader>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          <div className="hl-grid-3">
             {topWriters.map(w => <WriterCard key={w.id} writer={w} />)}
           </div>
         </div>
@@ -129,7 +129,7 @@ export default function HomePage() {
       {allListings.length > 0 && (
         <div style={{ marginTop: 56 }}>
           <SectionHeader accent="var(--orange)" right={<div style={{ fontFamily: 'var(--mono)', fontSize: 12, opacity: 0.7 }}>sort: hot ↓</div>}>all listings</SectionHeader>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 28 }}>
+          <div className="hl-grid-4">
             {allListings.map(l => <LyricsCard key={l.id} lyric={l} size="sm" />)}
           </div>
         </div>
@@ -138,7 +138,7 @@ export default function HomePage() {
       {/* Sell CTA */}
       <div style={{ marginTop: 80, position: 'relative', border: '3px solid var(--ink)', borderRadius: 16, background: 'var(--lime)', color: 'var(--ink)', padding: '48px 40px', boxShadow: '8px 8px 0 var(--ink)', overflow: 'hidden' }}>
         <Sticker color="var(--pink)" rotate={-12} size={16} style={{ position: 'absolute', top: 18, right: 18 }}>writers ↓</Sticker>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 32, alignItems: 'center' }}>
+        <div className="hl-split">
           <div>
             <h2 style={{ margin: 0, fontFamily: 'var(--display)', fontSize: 'clamp(40px, 6vw, 84px)', lineHeight: 0.9, letterSpacing: '-0.03em' }}>
               you got bars?<br />

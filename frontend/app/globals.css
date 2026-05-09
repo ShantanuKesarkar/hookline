@@ -28,9 +28,7 @@
 }
 
 /* ── Base ──────────────────────────────────────── */
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   background: var(--bg);
@@ -51,24 +49,155 @@ body {
 }
 
 /* ── Card hover lift ───────────────────────────── */
-.hl-card {
-  transition: transform 0.15s ease;
-  cursor: pointer;
-}
-.hl-card:hover {
-  transform: translate(-2px, -3px);
-}
+.hl-card { transition: transform 0.15s ease; cursor: pointer; }
+.hl-card:hover { transform: translate(-2px, -3px); }
 
 /* ── Tag chip ──────────────────────────────────── */
-.hl-tag {
-  transition: background 0.1s ease, color 0.1s ease;
-}
+.hl-tag { transition: background 0.1s ease, color 0.1s ease; }
 
 /* ── Scrollbar ─────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--ink); opacity: 0.3; border-radius: 3px; }
-
-/* ── Hide scrollbar on mood rail ───────────────── */
 .mood-rail::-webkit-scrollbar { display: none; }
 .mood-rail { scrollbar-width: none; }
+
+/* ─────────────────────────────────────────────────
+   RESPONSIVE LAYOUT UTILITIES
+───────────────────────────────────────────────── */
+
+/* Page wrapper */
+.hl-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 32px;
+}
+
+/* Grids */
+.hl-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.hl-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.hl-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+/* Split (side-by-side panels) */
+.hl-split        { display: grid; grid-template-columns: 1fr 1fr;     gap: 40px; align-items: flex-start; }
+.hl-split-wide   { display: grid; grid-template-columns: 1.1fr 1fr;   gap: 56px; align-items: flex-start; }
+.hl-split-narrow { display: grid; grid-template-columns: 1fr 320px;   gap: 32px; align-items: flex-start; }
+
+/* Auth two-column */
+.hl-auth { display: grid; grid-template-columns: 1.1fr 1fr; min-height: 100vh; }
+
+/* Stats strip */
+.hl-stats-4 { display: grid; grid-template-columns: repeat(4, 1fr); }
+.hl-stats-3 { display: grid; grid-template-columns: repeat(3, 1fr); }
+
+/* Peek grid */
+.hl-peek-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }
+
+/* Pricing grid */
+.hl-pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
+
+/* What's the deal cards */
+.hl-deal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* Testimonials */
+.hl-testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+/* Hero CTAs */
+.hl-hero-cta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+
+/* Visibility helpers */
+.hl-desktop { display: flex; }
+.hl-mobile  { display: none; }
+
+/* ─────────────────────────────────────────────────
+   TABLET  ≤ 1024px
+───────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .hl-page { padding: 20px 24px; }
+  .hl-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .hl-grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .hl-peek-grid { grid-template-columns: repeat(3, 1fr); }
+  .hl-pricing { grid-template-columns: 1fr 1fr; }
+  .hl-deal    { grid-template-columns: 1fr 1fr; }
+  .hl-split-narrow { grid-template-columns: 1fr; }
+  .hl-stats-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ─────────────────────────────────────────────────
+   MOBILE  ≤ 768px
+───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hl-page { padding: 16px; }
+
+  /* Grids → single column */
+  .hl-grid-4, .hl-grid-3, .hl-grid-2 { grid-template-columns: 1fr; gap: 16px; }
+
+  /* Splits → single column */
+  .hl-split, .hl-split-wide, .hl-split-narrow { grid-template-columns: 1fr; gap: 24px; }
+
+  /* Auth → single column */
+  .hl-auth { grid-template-columns: 1fr; }
+  .hl-auth-left { display: none; }
+
+  /* Stats */
+  .hl-stats-4 { grid-template-columns: repeat(2, 1fr); }
+  .hl-stats-3 { grid-template-columns: 1fr 1fr; }
+
+  /* Peek → 2 col */
+  .hl-peek-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Pricing → 1 col */
+  .hl-pricing { grid-template-columns: 1fr; }
+
+  /* Deal cards → 1 col */
+  .hl-deal { grid-template-columns: 1fr; }
+
+  /* Testimonials → 1 col */
+  .hl-testimonials { grid-template-columns: 1fr; }
+
+  /* Visibility */
+  .hl-desktop { display: none; }
+  .hl-mobile  { display: flex; }
+}
+
+/* ─────────────────────────────────────────────────
+   SMALL MOBILE  ≤ 480px
+───────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .hl-page { padding: 12px; }
+  .hl-stats-4, .hl-stats-3 { grid-template-columns: 1fr 1fr; }
+  .hl-peek-grid { grid-template-columns: 1fr 1fr; }
+  .hl-hero-cta { flex-direction: column; align-items: flex-start; }
+}
+
+/* ── Navbar responsive ─────────────────────────── */
+.hl-nav-links { display: flex; gap: 4px; }
+.hl-nav-search { flex: 1; max-width: 320px; margin-left: auto; }
+.hl-hamburger { display: none; cursor: pointer; background: none; border: 2px solid var(--ink); border-radius: 6px; padding: 6px 8px; font-size: 18px; }
+.hl-mobile-menu { display: none; }
+
+@media (max-width: 768px) {
+  .hl-nav-links  { display: none; }
+  .hl-nav-search { display: none; }
+  .hl-hamburger  { display: flex; align-items: center; justify-content: center; margin-left: auto; }
+  .hl-mobile-menu.open {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: fixed;
+    top: 60px;
+    left: 0; right: 0;
+    background: var(--bg);
+    border-bottom: 2.5px solid var(--ink);
+    padding: 16px;
+    z-index: 49;
+  }
+}
+
+/* ── Landing page responsive fixes ────────────── */
+.hl-landing-main { max-width: 1280px; margin: 0 auto; padding: 24px 32px; }
+
+@media (max-width: 768px) {
+  .hl-landing-main { padding: 16px; }
+  .hl-landing-nav-links { display: none; }
+}

@@ -28,16 +28,15 @@ function Field({ label, sub, children }) {
   );
 }
 
-// Left panel copy adapts to role + tab
 function leftCopy(tab, role) {
-  if (tab === 'login') return { heading: ['welcome', 'back.'], body: 'pick up where you left off. unread dms, new bids, and 2 lyrics dropped from writers you follow.' };
-  if (role === 'writer') return { heading: ['ur bars', 'belong here.'], body: 'set a price, post a teaser, lock the rest. artists find you. payouts every 48h. we handle the boring stuff.' };
-  return { heading: ['come on', 'in.'], body: "browse 12k+ lyrics from independent songwriters. preview free, license fast, keep 100% of your streaming royalties." };
+  if (tab === 'login') return { heading: ['welcome', 'back.'], body: 'pick up where you left off. unread dms, new bids, and lyrics dropped from writers you follow.' };
+  if (role === 'writer') return { heading: ['ur bars', 'belong here.'], body: 'set a price, post a teaser, lock the rest. artists find you. payouts every 48h.' };
+  return { heading: ['come on', 'in.'], body: "browse 12k+ lyrics from independent songwriters. preview free, license fast." };
 }
 
 function AuthForm() {
   const { login, signup, user, loading: authLoading } = useAuth();
-  const router      = useRouter();
+  const router       = useRouter();
   const searchParams = useSearchParams();
 
   const [tab,    setTab]    = useState(searchParams.get('tab') || 'login');
@@ -61,14 +60,12 @@ function AuthForm() {
 
   function switchRole(r) {
     setRole(r);
-    // clear writer-only fields when switching to artist
     if (r === 'artist') { setBio(''); setVibes([]); }
   }
 
   async function submit(e) {
     e && e.preventDefault();
-    setError('');
-    setBusy(true);
+    setError(''); setBusy(true);
     try {
       if (tab === 'login') {
         const me = await login(email, pw);
@@ -76,78 +73,62 @@ function AuthForm() {
       } else {
         const me = await signup({
           handle: handle.startsWith('@') ? handle : `@${handle}`,
-          name:   name || handle,
-          email,
-          password: pw,
-          role:  role === 'writer' ? 'writer' : 'buyer',
-          bio,
-          vibes,
-          emoji: role === 'writer' ? '✍️' : '🎧',
+          name: name || handle, email, password: pw, role: role === 'writer' ? 'writer' : 'buyer',
+          bio, vibes, emoji: role === 'writer' ? '✍️' : '🎧',
           color: role === 'writer' ? '#FF3D8A' : '#2D52FF',
         });
         router.push(me.role === 'writer' ? '/post' : '/browse');
       }
-    } catch (err) {
-      setError(err.message || 'something went wrong');
-    } finally {
-      setBusy(false);
-    }
+    } catch (err) { setError(err.message || 'something went wrong'); }
+    finally { setBusy(false); }
   }
 
   const { heading, body } = leftCopy(tab, role);
 
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1.1fr 1fr', background: 'var(--bg)', color: 'var(--ink)' }}>
+    <div className="hl-auth" style={{ background: 'var(--bg)', color: 'var(--ink)' }}>
 
-      {/* LEFT — visual, adapts to role */}
-      <div style={{ background: 'var(--ink)', color: 'var(--bg)', padding: '48px 56px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', transition: 'background .3s ease' }}>
+      {/* LEFT — hidden on mobile */}
+      <div className="hl-auth-left" style={{ background: 'var(--ink)', color: 'var(--bg)', padding: '48px 56px', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', minHeight: '100vh' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 32, height: 32, background: 'var(--lime)', border: '2.5px solid var(--bg)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--display)', fontSize: 22, lineHeight: 1, color: 'var(--ink)', transform: 'rotate(-4deg)' }}>♫</div>
           <span style={{ fontFamily: 'var(--display)', fontSize: 24, letterSpacing: '-0.02em' }}>HOOKLINE</span>
         </div>
-
         <div style={{ marginTop: 'auto', marginBottom: 'auto' }}>
           <h1 style={{ margin: 0, fontFamily: 'var(--display)', fontSize: 'clamp(56px, 7vw, 96px)', lineHeight: 0.85, letterSpacing: '-0.04em' }}>
             <div>{heading[0]}</div>
             <div><span style={{ color: 'var(--lime)' }}>{heading[1]}</span></div>
           </h1>
-          <div style={{ marginTop: 24, fontFamily: 'var(--mono)', fontSize: 16, lineHeight: 1.5, maxWidth: 380, opacity: 0.85 }}>
-            {body}
-          </div>
-
-          {/* Role-specific social proof */}
+          <div style={{ marginTop: 24, fontFamily: 'var(--mono)', fontSize: 16, lineHeight: 1.5, maxWidth: 380, opacity: 0.85 }}>{body}</div>
           {tab === 'register' && role === 'writer' && (
             <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[['85%', 'of every sale goes to you'], ['48h', 'payout turnaround'], ['12k+', 'artists looking for hooks']].map(([stat, label]) => (
-                <div key={stat} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--display)', fontSize: 28, color: 'var(--lime)', lineHeight: 1 }}>{stat}</span>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 13, opacity: 0.75 }}>{label}</span>
+              {[['85%', 'of every sale goes to you'], ['48h', 'payout turnaround'], ['12k+', 'artists looking for hooks']].map(([s, l]) => (
+                <div key={s} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <span style={{ fontFamily: 'var(--display)', fontSize: 28, color: 'var(--lime)', lineHeight: 1 }}>{s}</span>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 13, opacity: 0.75 }}>{l}</span>
                 </div>
               ))}
             </div>
           )}
           {tab === 'register' && role === 'artist' && (
             <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[['12k+', 'lyrics across every genre'], ['$80', 'non-exclusive from'], ['60s', 'from purchase to download']].map(([stat, label]) => (
-                <div key={stat} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--display)', fontSize: 28, color: 'var(--lime)', lineHeight: 1 }}>{stat}</span>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 13, opacity: 0.75 }}>{label}</span>
+              {[['12k+', 'lyrics across every genre'], ['$80', 'non-exclusive from'], ['60s', 'from purchase to download']].map(([s, l]) => (
+                <div key={s} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <span style={{ fontFamily: 'var(--display)', fontSize: 28, color: 'var(--lime)', lineHeight: 1 }}>{s}</span>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 13, opacity: 0.75 }}>{l}</span>
                 </div>
               ))}
             </div>
           )}
         </div>
-
         <Sticker color="var(--pink)" ink="var(--bg)" rotate={-10} size={13} style={{ position: 'absolute', top: '20%', right: 40 }}>12k+ writers</Sticker>
         <Sticker color="var(--lime)" rotate={8} size={13} style={{ position: 'absolute', bottom: '22%', right: 60 }}>⏱ paid in 48h</Sticker>
-        <Sticker color="var(--orange)" rotate={-5} size={13} style={{ position: 'absolute', bottom: 100, left: '40%' }}>★ 4.9 stars</Sticker>
-
         <div style={{ fontFamily: 'var(--mono)', fontSize: 11, opacity: 0.5 }}>✦ EST. 2024 · LYRICS MARKETPLACE</div>
       </div>
 
       {/* RIGHT — form */}
-      <div style={{ padding: '48px 56px', display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 520, margin: '0 auto', width: '100%', boxSizing: 'border-box', overflowY: 'auto' }}>
-        <Link href="/" style={{ alignSelf: 'flex-start', marginBottom: 16, color: 'inherit', textDecoration: 'none', fontFamily: 'var(--mono)', fontSize: 13, opacity: 0.7, borderBottom: '1.5px solid var(--ink)' }}>← back to landing</Link>
+      <div style={{ padding: '40px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', boxSizing: 'border-box', overflowY: 'auto', maxHeight: '100vh' }}>
+        <Link href="/" style={{ alignSelf: 'flex-start', marginBottom: 16, color: 'inherit', textDecoration: 'none', fontFamily: 'var(--mono)', fontSize: 13, opacity: 0.7, borderBottom: '1.5px solid var(--ink)' }}>← back</Link>
 
         {/* Tab toggle */}
         <div style={{ display: 'flex', border: '2.5px solid var(--ink)', borderRadius: 999, padding: 3, alignSelf: 'flex-start', background: 'var(--bg)' }}>
@@ -158,135 +139,76 @@ function AuthForm() {
           ))}
         </div>
 
-        <h2 style={{ margin: '24px 0 4px', fontFamily: 'var(--display)', fontSize: 'clamp(36px, 5vw, 56px)', lineHeight: 0.9, letterSpacing: '-0.03em' }}>
+        <h2 style={{ margin: '20px 0 4px', fontFamily: 'var(--display)', fontSize: 'clamp(32px, 5vw, 56px)', lineHeight: 0.9, letterSpacing: '-0.03em' }}>
           {tab === 'login' ? "let's get you in." : role === 'writer' ? 'ur era starts now.' : 'start ur era.'}
         </h2>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 13, opacity: 0.7, marginBottom: 20 }}>
-          {tab === 'login' ? 'sign in with your email + password.' : role === 'writer' ? "set up your writer profile. takes 60 seconds." : "create your account and start browsing."}
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 13, opacity: 0.7, marginBottom: 16 }}>
+          {tab === 'login' ? 'sign in with your email + password.' : role === 'writer' ? "set up your writer profile." : "create your account."}
         </div>
 
         {error && (
-          <div style={{ background: 'var(--pink)', color: 'var(--ink)', fontFamily: 'var(--mono)', fontSize: 12, padding: '10px 14px', borderRadius: 8, border: '2px solid var(--ink)', marginBottom: 16 }}>{error}</div>
+          <div style={{ background: 'var(--pink)', color: 'var(--ink)', fontFamily: 'var(--mono)', fontSize: 12, padding: '10px 14px', borderRadius: 8, border: '2px solid var(--ink)', marginBottom: 14 }}>{error}</div>
         )}
 
-        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-
-          {/* ── REGISTER ONLY ── */}
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {tab === 'register' && (
             <>
-              {/* Role picker */}
               <div>
                 <div style={{ fontFamily: 'var(--mono)', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8, opacity: 0.7 }}>i'm here to...</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  {[
-                    { id: 'writer', emoji: '✍️', t: 'write & sell', d: "i've got bars", accent: 'var(--pink)' },
-                    { id: 'artist', emoji: '🎤', t: 'find & buy',   d: "i'm an artist / producer", accent: 'var(--blue)' },
-                  ].map(r => (
-                    <button key={r.id} type="button" onClick={() => switchRole(r.id)} style={{
-                      padding: 14, textAlign: 'left', cursor: 'pointer',
-                      border: `2.5px solid ${role === r.id ? r.accent : 'var(--ink)'}`,
-                      borderRadius: 10,
-                      background: role === r.id ? r.accent : 'var(--bg)',
-                      color: role === r.id && r.id === 'artist' ? 'var(--bg)' : 'var(--ink)',
-                      boxShadow: role === r.id ? `4px 4px 0 var(--ink)` : 'none',
-                      transform: role === r.id ? 'translate(-2px,-2px)' : 'none',
-                      transition: 'all .12s ease',
-                    }}>
-                      <div style={{ fontSize: 28, lineHeight: 1 }}>{r.emoji}</div>
-                      <div style={{ fontFamily: 'var(--display)', fontSize: 18, marginTop: 6, lineHeight: 1 }}>{r.t}</div>
-                      <div style={{ fontFamily: 'var(--mono)', fontSize: 11, opacity: 0.75, marginTop: 4 }}>{r.d}</div>
+                  {[{ id: 'writer', emoji: '✍️', t: 'write & sell', d: "i've got bars", accent: 'var(--pink)' }, { id: 'artist', emoji: '🎤', t: 'find & buy', d: "i'm an artist", accent: 'var(--blue)' }].map(r => (
+                    <button key={r.id} type="button" onClick={() => switchRole(r.id)} style={{ padding: 12, textAlign: 'left', cursor: 'pointer', border: `2.5px solid ${role === r.id ? r.accent : 'var(--ink)'}`, borderRadius: 10, background: role === r.id ? r.accent : 'var(--bg)', color: role === r.id && r.id === 'artist' ? 'var(--bg)' : 'var(--ink)', boxShadow: role === r.id ? '4px 4px 0 var(--ink)' : 'none', transform: role === r.id ? 'translate(-2px,-2px)' : 'none', transition: 'all .12s ease' }}>
+                      <div style={{ fontSize: 24 }}>{r.emoji}</div>
+                      <div style={{ fontFamily: 'var(--display)', fontSize: 16, marginTop: 4, lineHeight: 1 }}>{r.t}</div>
+                      <div style={{ fontFamily: 'var(--mono)', fontSize: 10, opacity: 0.75, marginTop: 3 }}>{r.d}</div>
                     </button>
                   ))}
                 </div>
               </div>
-
-              {/* Common fields */}
-              <Field label="display name">
-                <input value={name} onChange={e => setName(e.target.value)} placeholder={role === 'writer' ? 'ur name or stage alias' : 'ur name'} style={input} />
-              </Field>
-              <Field label="handle">
-                <input value={handle} onChange={e => setHandle(e.target.value.startsWith('@') ? e.target.value : '@' + e.target.value)} placeholder="@yrhandle" style={input} />
-              </Field>
-
-              {/* ── WRITER-ONLY FIELDS ── */}
+              <Field label="display name"><input value={name} onChange={e => setName(e.target.value)} placeholder={role === 'writer' ? 'ur name or alias' : 'ur name'} style={input} /></Field>
+              <Field label="handle"><input value={handle} onChange={e => setHandle(e.target.value.startsWith('@') ? e.target.value : '@' + e.target.value)} placeholder="@yrhandle" style={input} /></Field>
               {role === 'writer' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: '16px', background: 'rgba(198,255,61,0.08)', border: '2px dashed var(--ink)', borderRadius: 12 }}>
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.6 }}>✦ writer profile — optional but helps buyers find you</div>
-
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: 14, background: 'rgba(198,255,61,0.08)', border: '2px dashed var(--ink)', borderRadius: 12 }}>
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.6 }}>✦ writer profile — optional</div>
                   <Field label="ur vibe in one line" sub="optional">
-                    <input
-                      value={bio}
-                      onChange={e => setBio(e.target.value)}
-                      placeholder="sad pop & late-night spirals. ATL → LA."
-                      maxLength={80}
-                      style={input}
-                    />
-                    <div style={{ fontFamily: 'var(--mono)', fontSize: 10, opacity: 0.45, marginTop: 4, textAlign: 'right' }}>{bio.length}/80</div>
+                    <input value={bio} onChange={e => setBio(e.target.value)} placeholder="sad pop & late-night spirals." maxLength={80} style={input} />
                   </Field>
-
-                  <Field label="what do u write?" sub="pick ur genres">
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+                  <Field label="what do u write?" sub="genres">
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
                       {GENRES.map(g => (
-                        <button key={g} type="button" onClick={() => toggleVibe(g)} style={{
-                          padding: '5px 12px', borderRadius: 999, cursor: 'pointer',
-                          border: '2px solid var(--ink)',
-                          fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 600,
-                          background: vibes.includes(g) ? 'var(--lime)' : 'transparent',
-                          color: 'var(--ink)',
-                          transition: 'background .1s ease',
-                        }}>
-                          {g}
-                        </button>
+                        <button key={g} type="button" onClick={() => toggleVibe(g)} style={{ padding: '5px 10px', borderRadius: 999, cursor: 'pointer', border: '2px solid var(--ink)', fontFamily: 'var(--mono)', fontSize: 11, fontWeight: 600, background: vibes.includes(g) ? 'var(--lime)' : 'transparent', color: 'var(--ink)' }}>{g}</button>
                       ))}
                     </div>
-                    {vibes.length > 0 && (
-                      <div style={{ fontFamily: 'var(--mono)', fontSize: 10, opacity: 0.5, marginTop: 6 }}>
-                        selected: {vibes.join(', ')}
-                      </div>
-                    )}
                   </Field>
                 </div>
               )}
             </>
           )}
 
-          {/* Common fields for both login + register */}
-          <Field label="email">
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@whatever.com" style={input} required />
-          </Field>
-
-          <Field label="password" sub={tab === 'register' ? '8+ chars, ur choice' : ''}>
+          <Field label="email"><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@whatever.com" style={input} required /></Field>
+          <Field label="password" sub={tab === 'register' ? '8+ chars' : ''}>
             <input type="password" value={pw} onChange={e => setPw(e.target.value)} placeholder="••••••••" style={input} required />
           </Field>
 
-          <BigBtn type="submit" size="lg" color="var(--lime)" full style={{ marginTop: 8 }}>
-            {busy
-              ? 'one sec...'
-              : tab === 'login'
-                ? 'log in →'
-                : role === 'writer'
-                  ? '✍️ start writing →'
-                  : '🎧 start browsing →'}
+          <BigBtn type="submit" size="lg" color="var(--lime)" full style={{ marginTop: 6 }}>
+            {busy ? 'one sec...' : tab === 'login' ? 'log in →' : role === 'writer' ? '✍️ start writing →' : '🎧 start browsing →'}
           </BigBtn>
         </form>
 
-        {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '20px 0', fontFamily: 'var(--mono)', fontSize: 11, opacity: 0.5 }}>
-          <div style={{ flex: 1, height: 1.5, background: 'var(--ink)', opacity: 0.2 }} />
-          <span>OR</span>
-          <div style={{ flex: 1, height: 1.5, background: 'var(--ink)', opacity: 0.2 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '16px 0', fontFamily: 'var(--mono)', fontSize: 11, opacity: 0.5 }}>
+          <div style={{ flex: 1, height: 1.5, background: 'var(--ink)', opacity: 0.2 }} /><span>OR</span><div style={{ flex: 1, height: 1.5, background: 'var(--ink)', opacity: 0.2 }} />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
           {[['🍎', 'apple'], ['G', 'google'], ['🎧', 'spotify']].map(([icon, label]) => (
-            <button key={label} type="button" onClick={() => alert('coming soon')} style={{ padding: '12px 14px', border: '2.5px solid var(--ink)', borderRadius: 10, background: 'var(--bg)', color: 'var(--ink)', cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <button key={label} type="button" onClick={() => alert('coming soon')} style={{ padding: '11px 10px', border: '2.5px solid var(--ink)', borderRadius: 10, background: 'var(--bg)', color: 'var(--ink)', cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
               <span>{icon}</span> {label}
             </button>
           ))}
         </div>
 
-        <div style={{ marginTop: 18, fontFamily: 'var(--mono)', fontSize: 10, lineHeight: 1.5, opacity: 0.5 }}>
-          by signing {tab === 'login' ? 'in' : 'up'} you agree to our terms + privacy. we don't sell your data — only your hooks (with permission).
+        <div style={{ marginTop: 14, fontFamily: 'var(--mono)', fontSize: 10, lineHeight: 1.5, opacity: 0.5 }}>
+          by signing {tab === 'login' ? 'in' : 'up'} you agree to our terms + privacy.
         </div>
       </div>
     </div>
@@ -295,11 +217,7 @@ function AuthForm() {
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', fontFamily: 'var(--display)', fontSize: 32, opacity: 0.3 }}>
-        HOOKLINE...
-      </div>
-    }>
+    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', fontFamily: 'var(--display)', fontSize: 32, opacity: 0.3 }}>HOOKLINE...</div>}>
       <AuthForm />
     </Suspense>
   );
