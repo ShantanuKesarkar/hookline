@@ -89,7 +89,7 @@ export default function LandingPage() {
       <div className="hl-landing-main">
 
         {/* HERO */}
-        <section style={{ position: 'relative', padding: '40px 0 60px', overflow: 'hidden' }}>
+        <section style={{ position: 'relative', padding: '40px 0 60px', overflow: 'hidden', maxWidth: '100%' }}>
           <Sticker color="var(--pink)" rotate={14} size={14} style={{ position: 'absolute', top: 30, right: '6%', zIndex: 3 }}>★ 4.9 from 12k writers</Sticker>
           <Sticker color="var(--blue)" ink="var(--bg)" rotate={-8} size={13} shape="rect" style={{ position: 'absolute', top: 220, left: '2%', zIndex: 3 }}>licenses from $80</Sticker>
           <Sticker color="var(--orange)" rotate={6} size={13} style={{ position: 'absolute', bottom: 90, right: '14%', zIndex: 3 }}>↻ 240 sold this week</Sticker>
