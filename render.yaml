@@ -22,3 +22,5 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+      - key: PYTHON_VERSION
+        value: "3.11.9"
