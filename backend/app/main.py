@@ -17,6 +17,7 @@ app.add_middleware(
         "https://aifreaknation.in",
         "https://www.aifreaknation.in",
         "https://hookline.aifreaknation.in",
+        "https://hookline-u988.onrender.com",
     ],
     allow_credentials=True,
     allow_methods=["*"],
