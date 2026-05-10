@@ -32,5 +32,9 @@ app.include_router(licenses.router)
 app.include_router(messages.router)
 
 @app.get("/")
-def health():
+def root():
     return {"status": "ok", "app": "HOOKLINE API"}
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
