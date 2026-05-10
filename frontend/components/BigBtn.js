@@ -17,12 +17,12 @@ export default function BigBtn({
   };
 
   function press(e) {
-    e.currentTarget.style.transform = 'translate(2px,2px)';
-    e.currentTarget.style.boxShadow = '2px 2px 0 var(--ink)';
+    e.currentTarget.style.transform = 'translate(1px,1px)';
+    e.currentTarget.style.boxShadow = '1px 1px 0 var(--ink)';
   }
   function release(e) {
     e.currentTarget.style.transform = '';
-    e.currentTarget.style.boxShadow = '4px 4px 0 var(--ink)';
+    e.currentTarget.style.boxShadow = '3px 3px 0 var(--ink)';
   }
 
   return (
@@ -36,7 +36,7 @@ export default function BigBtn({
         background: color, color: ink,
         border: '2.5px solid var(--ink)',
         borderRadius: 8,
-        boxShadow: '4px 4px 0 var(--ink)',
+        boxShadow: '3px 3px 0 var(--ink)',
         fontFamily: 'var(--display)',
         cursor: 'pointer', letterSpacing: '0.01em',
         width: full ? '100%' : 'auto',

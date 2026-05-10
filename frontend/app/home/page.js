@@ -8,12 +8,14 @@ import MarqueeBand from '@/components/MarqueeBand';
 import SectionHeader from '@/components/SectionHeader';
 import Sticker from '@/components/Sticker';
 import BigBtn from '@/components/BigBtn';
+import MoodRail from '@/components/MoodRail';
 import { api } from '@/lib/api';
 
 export default function HomePage() {
   const [lyrics,  setLyrics]  = useState([]);
   const [writers, setWriters] = useState([]);
   const [loaded,  setLoaded]  = useState(false);
+  const [mood,    setMood]    = useState(null);
 
   useEffect(() => {
     Promise.all([api.getLyrics({ limit: 50 }), api.getWriters()])
@@ -25,7 +27,8 @@ export default function HomePage() {
   const trending = lyrics.filter(l => l.tag === 'TRENDING' || l.tag === 'HOT').slice(0, 4);
   const bidding  = lyrics.filter(l => l.bidding).slice(0, 3);
   const topWriters = writers.slice(0, 3);
-  const allListings = lyrics.slice(0, 8);
+  const filtered = mood ? lyrics.filter(l => l.mood?.includes(mood)) : lyrics;
+  const allListings = filtered.slice(0, 8);
 
   return (
     <div>
@@ -62,6 +65,16 @@ export default function HomePage() {
       {/* Marquee */}
       <div style={{ margin: '24px -32px' }}>
         <MarqueeBand items={['NEW DROPS DAILY', 'PAYOUT IN 48H', 'BID OR BUY', '0% AI SLOP', 'WRITERS GET 85%', 'EXCLUSIVE LICENSES']} color="var(--ink)" ink="var(--lime)" speed={45} fontSize={36} height={64} />
+      </div>
+
+      {/* Mood rail */}
+      <div style={{ marginTop: 12 }}>
+        <SectionHeader accent="var(--pink)" right={
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 12, opacity: 0.7 }}>
+            {loaded ? `${filtered.length} listings` : '—'}
+          </div>
+        }>browse by mood</SectionHeader>
+        <MoodRail active={mood} onPick={setMood} />
       </div>
 
       {/* Hot right now */}
@@ -102,8 +115,18 @@ export default function HomePage() {
                       <div style={{ fontFamily: 'var(--display)', fontSize: 22, lineHeight: 1, marginTop: 4 }}>{l.title}</div>
                       <div style={{ marginTop: 14, padding: '10px 12px', background: 'var(--bg)', color: 'var(--ink)', borderRadius: 6 }}>
                         <div style={{ fontFamily: 'var(--mono)', fontSize: 10, opacity: 0.7 }}>current top bid</div>
-                        <span style={{ fontFamily: 'var(--display)', fontSize: 26, lineHeight: 1 }}>${l.current_bid || l.price}</span>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                          <span style={{ fontFamily: 'var(--display)', fontSize: 26, lineHeight: 1 }}>${l.current_bid || l.price}</span>
+                          {l.bidders_count > 0 && (
+                            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, opacity: 0.6 }}>· {l.bidders_count} bidders</span>
+                          )}
+                        </div>
                       </div>
+                      {l.bid_ends && (
+                        <div style={{ marginTop: 8, fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--lime)', fontWeight: 700 }}>
+                          ⏱ ends in {l.bid_ends}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Link>
@@ -128,7 +151,7 @@ export default function HomePage() {
       {/* All listings */}
       {allListings.length > 0 && (
         <div style={{ marginTop: 56 }}>
-          <SectionHeader accent="var(--orange)" right={<div style={{ fontFamily: 'var(--mono)', fontSize: 12, opacity: 0.7 }}>sort: hot ↓</div>}>all listings</SectionHeader>
+          <SectionHeader accent="var(--orange)" right={<div style={{ fontFamily: 'var(--mono)', fontSize: 12, opacity: 0.7 }}>sort: hot ↓</div>}>{mood ? `${mood} hooks` : 'all listings'}</SectionHeader>
           <div className="hl-grid-4">
             {allListings.map(l => <LyricsCard key={l.id} lyric={l} size="sm" />)}
           </div>
