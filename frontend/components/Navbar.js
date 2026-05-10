@@ -91,7 +91,7 @@ export default function Navbar() {
             <div style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '3px 8px', background: user.role === 'writer' ? 'var(--pink)' : 'var(--blue)', color: user.role === 'writer' ? 'var(--ink)' : 'var(--bg)', border: '1.5px solid var(--ink)', borderRadius: 999 }}>
               {user.role === 'writer' ? '✍️ writer' : '🎧 artist'}
             </div>
-            <Link href={user.role === 'writer' ? '/dashboard/writer' : '/dashboard/buyer'} style={{ textDecoration: 'none' }}>
+            <Link href="/profile" style={{ textDecoration: 'none' }}>
               <div style={{ width: 34, height: 34, borderRadius: 999, background: user.color || 'var(--pink)', border: '2px solid var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, cursor: 'pointer', boxShadow: '2px 2px 0 var(--ink)' }}>{user.emoji || '🎤'}</div>
             </Link>
             <button onClick={handleLogout} style={{ fontFamily: 'var(--mono)', fontSize: 11, cursor: 'pointer', background: 'transparent', border: '1.5px solid var(--ink)', borderRadius: 6, padding: '5px 10px', color: 'var(--ink)' }}>out</button>

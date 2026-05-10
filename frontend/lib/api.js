@@ -34,7 +34,8 @@ export const api = {
   // Auth
   signup: (data) => request('POST', '/auth/signup', data),
   login:  (data) => request('POST', '/auth/login',  data),
-  me:     ()     => request('GET',  '/auth/me'),
+  me:            ()     => request('GET',   '/auth/me'),
+  updateProfile: (data) => request('PATCH', '/auth/me', data),
 
   // Lyrics
   getLyrics:    (params = {}) => request('GET',    `/lyrics${qs(params)}`),
