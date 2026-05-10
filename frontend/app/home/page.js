@@ -13,6 +13,242 @@ import BigBtn from '@/components/BigBtn';
 import MoodRail from '@/components/MoodRail';
 import { api } from '@/lib/api';
 
+/* ── Writer / artist studio home ──────────────────── */
+function WriterHome({ user }) {
+  const [lyrics,  setLyrics]  = useState([]);
+  const [threads, setThreads] = useState([]);
+  const [bids,    setBids]    = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      api.getWriterLyrics(user.id).catch(() => []),
+      api.myThreads().catch(() => []),
+      api.myBids().catch(() => []),
+    ]).then(([l, t, b]) => {
+      setLyrics(l);
+      setThreads(t);
+      setBids(b);
+    }).catch(console.error).finally(() => setLoading(false));
+  }, [user.id]);
+
+  const totalEarned  = lyrics.reduce((s, l) => s + (l.sold_count || 0) * (l.price || 0) * 0.85, 0);
+  const pendingPayout = Math.round(totalEarned * 0.15);
+  const activeBids   = bids.filter(b => b.status === 'active' || !b.status).length;
+  const unreadCount  = threads.reduce((s, t) => s + (t.unread || 0), 0);
+  const firstName    = (user.display_name || user.handle || 'writer').split(' ')[0].toLowerCase();
+  const recentSold   = lyrics.filter(l => (l.sold_count || 0) > 0).slice(0, 3);
+  const FALLBACK     = { bg: '#C6FF3D', ink: '#0E0E10', emoji: '🎤', shape: 'circle' };
+
+  const summaryParts = [
+    totalEarned > 0 && `you've made $${Math.round(totalEarned).toLocaleString()} total.`,
+    activeBids > 0  && `${activeBids} active bid${activeBids > 1 ? 's' : ''}.`,
+    unreadCount > 0 && `${unreadCount} unread DM${unreadCount > 1 ? 's' : ''}.`,
+    threads.length > 0 && 'a custom request worth peeking at.',
+  ].filter(Boolean);
+
+  if (loading) return (
+    <div style={{ textAlign: 'center', padding: '80px 0', fontFamily: 'var(--mono)', opacity: 0.5 }}>loading...</div>
+  );
+
+  return (
+    <div style={{ display: 'grid', gap: 32, paddingTop: 8 }}>
+
+      {/* HERO */}
+      <section style={{
+        padding: '40px 40px 36px', borderRadius: 18,
+        background: 'linear-gradient(135deg, var(--pink) 0%, var(--orange) 100%)',
+        color: 'var(--bg)', border: '2px solid var(--ink)',
+        boxShadow: '5px 5px 0 var(--ink)',
+        display: 'flex', justifyContent: 'space-between',
+        alignItems: 'flex-end', flexWrap: 'wrap', gap: 24,
+      }}>
+        <div>
+          <div style={{
+            fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 700,
+            letterSpacing: '0.12em', textTransform: 'uppercase',
+            background: 'var(--ink)', color: 'var(--bg)',
+            display: 'inline-block', padding: '4px 10px',
+            border: '1.5px solid var(--bg)', borderRadius: 4, marginBottom: 16,
+          }}>
+            ✍️ writer studio
+          </div>
+          <h1 style={{
+            margin: 0, fontFamily: 'var(--display)',
+            fontSize: 'clamp(40px, 5vw, 68px)', lineHeight: 0.9,
+            letterSpacing: '-0.03em',
+          }}>
+            hi {firstName}.
+          </h1>
+          {summaryParts.length > 0 && (
+            <div style={{ marginTop: 12, fontFamily: 'var(--mono)', fontSize: 13, lineHeight: 1.5, maxWidth: 460, opacity: 0.9 }}>
+              {summaryParts.join(' ')}
+            </div>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <Link href="/post" style={{ textDecoration: 'none' }}>
+            <BigBtn size="md" color="var(--ink)" ink="var(--lime)">+ post a hook</BigBtn>
+          </Link>
+          <Link href="/inbox" style={{ textDecoration: 'none' }}>
+            <BigBtn size="md" color="var(--bg)" ink="var(--ink)">
+              inbox{unreadCount > 0 ? ` (${unreadCount})` : ''}
+            </BigBtn>
+          </Link>
+        </div>
+      </section>
+
+      {/* STATS */}
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
+        {[
+          { label: 'this month',     value: `$${Math.round(totalEarned).toLocaleString()}`, sub: '↑ writers keep 85%', color: 'var(--lime)' },
+          { label: 'pending payout', value: `$${pendingPayout.toLocaleString()}`,          sub: 'releases in 7d',     color: 'var(--lime)' },
+          { label: 'active bids',    value: activeBids || 0,                                sub: activeBids > 0 ? 'on your lyrics' : 'no bids yet', color: activeBids > 0 ? 'var(--yellow)' : 'var(--bg)' },
+          { label: 'lyrics live',    value: lyrics.length || 0,                             sub: `${lyrics.filter(l => l.sold_count).length} sold at least once`, color: 'var(--bg)' },
+        ].map(({ label, value, sub, color }) => (
+          <div key={label} style={{
+            padding: '20px 22px', background: color,
+            border: '2px solid var(--ink)', borderRadius: 12,
+          }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 11, fontWeight: 700,
+                          letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.7 }}>
+              {label}
+            </div>
+            <div style={{ fontFamily: 'var(--display)', fontSize: 44, lineHeight: 0.95,
+                          letterSpacing: '-0.02em', marginTop: 6 }}>
+              {value}
+            </div>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 11, opacity: 0.65, marginTop: 4 }}>{sub}</div>
+          </div>
+        ))}
+      </section>
+
+      {/* CUSTOM REQUESTS + RECENT SALES */}
+      <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+
+        {/* Custom requests */}
+        <div style={{
+          border: '2px solid var(--ink)', borderRadius: 14,
+          background: 'var(--bg)', overflow: 'hidden',
+        }}>
+          <div style={{
+            padding: '16px 20px', borderBottom: '1.5px dashed var(--ink)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <h3 style={{ margin: 0, fontFamily: 'var(--display)', fontSize: 24, letterSpacing: '-0.02em' }}>
+              custom requests
+            </h3>
+            <Link href="/inbox" style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'inherit', borderBottom: '1.5px solid var(--ink)' }}>
+              see all →
+            </Link>
+          </div>
+          {threads.length === 0 ? (
+            <div style={{ padding: '28px 20px', fontFamily: 'var(--mono)', fontSize: 12, opacity: 0.5 }}>
+              no requests yet. buyers will dm you here.
+            </div>
+          ) : (
+            threads.slice(0, 4).map((t, i) => {
+              const buyer = t.buyer_user;
+              const isNew = (t.unread || 0) > 0;
+              return (
+                <div key={t.id} style={{
+                  padding: '14px 20px',
+                  borderBottom: i < threads.slice(0, 4).length - 1 ? '1.5px dashed rgba(14,14,16,0.12)' : 'none',
+                  display: 'flex', alignItems: 'center', gap: 12,
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: 'var(--display)', fontSize: 17, lineHeight: 1 }}>
+                      {buyer?.name || buyer?.handle || 'unknown'}
+                    </div>
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 11, opacity: 0.6, marginTop: 3,
+                                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {t.last_message || 'new message'}
+                    </div>
+                  </div>
+                  <Link href="/inbox" style={{ textDecoration: 'none' }}>
+                    <BigBtn size="sm" color={isNew ? 'var(--lime)' : 'var(--bg)'}>reply</BigBtn>
+                  </Link>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Recent sales */}
+        <div style={{
+          border: '2px solid var(--ink)', borderRadius: 14,
+          background: 'var(--ink)', color: 'var(--bg)',
+          display: 'flex', flexDirection: 'column',
+        }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1.5px dashed rgba(255,248,231,0.2)' }}>
+            <h3 style={{ margin: 0, fontFamily: 'var(--display)', fontSize: 24,
+                         letterSpacing: '-0.02em', color: 'var(--lime)' }}>
+              recent sales
+            </h3>
+          </div>
+          <div style={{ flex: 1 }}>
+            {recentSold.length === 0 ? (
+              <div style={{ padding: '28px 20px', fontFamily: 'var(--mono)', fontSize: 12, opacity: 0.5 }}>
+                no sales yet. share your listings!
+              </div>
+            ) : recentSold.map((l, i) => {
+              const cover = { ...(l.cover || FALLBACK), shape: 'circle' };
+              return (
+                <div key={l.id} style={{
+                  padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 14,
+                  borderBottom: i < recentSold.length - 1 ? '1px dashed rgba(255,248,231,0.15)' : 'none',
+                }}>
+                  <LyricCover lyric={{ ...l, cover }} size={52} hideTitle />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: 'var(--display)', fontSize: 17, lineHeight: 1,
+                                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {l.title}
+                    </div>
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 11, opacity: 0.55, marginTop: 3 }}>
+                      {l.genre || 'unknown'} · {l.sold_count} sold
+                    </div>
+                  </div>
+                  <div style={{ fontFamily: 'var(--display)', fontSize: 22, color: 'var(--lime)', flexShrink: 0 }}>
+                    ${Math.round((l.sold_count || 0) * (l.price || 0) * 0.85)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ padding: '14px 20px', borderTop: '1.5px dashed rgba(255,248,231,0.2)' }}>
+            <Link href="/dashboard/writer" style={{ textDecoration: 'none' }}>
+              <BigBtn size="sm" color="var(--lime)" full>view earnings →</BigBtn>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* YOUR LISTINGS */}
+      <section>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 16 }}>
+          <h2 style={{ margin: 0, fontFamily: 'var(--display)', fontSize: 34, letterSpacing: '-0.02em' }}>
+            your listings
+          </h2>
+          <Link href="/post" style={{ fontFamily: 'var(--mono)', fontSize: 13, color: 'inherit', borderBottom: '1.5px solid var(--ink)' }}>
+            + new listing
+          </Link>
+        </div>
+        {lyrics.length === 0 ? (
+          <div style={{ padding: '48px 0', textAlign: 'center', fontFamily: 'var(--mono)', opacity: 0.5 }}>
+            no listings yet.{' '}
+            <Link href="/post" style={{ color: 'inherit', borderBottom: '1.5px solid var(--ink)' }}>post your first hook →</Link>
+          </div>
+        ) : (
+          <div className="hl-grid-4">
+            {lyrics.slice(0, 8).map(l => <LyricsCard key={l.id} lyric={l} size="sm" />)}
+          </div>
+        )}
+      </section>
+
+    </div>
+  );
+}
+
 /* ── Mood chips shown in the hero ─────────────────── */
 const MOOD_CHIPS = [
   'heartbreak 💔', 'gym hype 🔥', 'late night 🌙',
@@ -401,18 +637,13 @@ function MarketingHome() {
 /* ── Root: picks the right view based on role ─────── */
 export default function HomePage() {
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (authLoading) return;
-    if (user?.role === 'writer') router.replace('/dashboard/writer');
-  }, [user, authLoading]);
 
   if (authLoading) return (
     <div style={{ textAlign: 'center', padding: '80px 0', fontFamily: 'var(--mono)', opacity: 0.5 }}>loading...</div>
   );
 
-  if (user?.role === 'buyer') return <BuyerHome />;
+  if (user?.role === 'writer') return <WriterHome user={user} />;
+  if (user?.role === 'buyer')  return <BuyerHome />;
 
   return <MarketingHome />;
 }
