@@ -14,6 +14,8 @@ class Thread(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     messages = relationship("Message", back_populates="thread", order_by="Message.created_at")
+    writer   = relationship("User", foreign_keys=[writer_id])
+    buyer    = relationship("User", foreign_keys=[buyer_id])
 
 class Message(Base):
     __tablename__ = "messages"

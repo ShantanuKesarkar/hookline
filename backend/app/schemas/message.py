@@ -14,6 +14,13 @@ class MessageOut(BaseModel):
 
     model_config = {"from_attributes": True}
 
+class UserMini(BaseModel):
+    id: str
+    handle: str
+    name: str
+    emoji: str
+    color: str
+
 class ThreadOut(BaseModel):
     id: str
     writer_id: str
@@ -23,6 +30,8 @@ class ThreadOut(BaseModel):
     messages: list[MessageOut] = []
     last_message: Optional[str] = None
     unread: int = 0
+    writer_user: Optional[UserMini] = None
+    buyer_user: Optional[UserMini] = None
 
     model_config = {"from_attributes": True}
 

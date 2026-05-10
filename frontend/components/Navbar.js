@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from './ThemeProvider';
@@ -21,12 +21,99 @@ const BUYER_NAV = [
   { href: '/dashboard/buyer', label: 'my licenses' },
 ];
 
+function UserMenu({ user, onSignOut }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function handleOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
+
+  function go(href) {
+    setOpen(false);
+    router.push(href);
+  }
+
+  const items = [
+    ['my profile', '/profile'],
+    [user.role === 'writer' ? 'earnings' : 'my licenses',
+     user.role === 'writer' ? '/dashboard/writer' : '/dashboard/buyer'],
+    ['settings', '/profile'],
+  ];
+
+  return (
+    <div ref={ref} style={{ position: 'relative', flexShrink: 0 }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: 36, height: 36, borderRadius: 999,
+          background: user.color || 'var(--pink)', border: '2px solid var(--ink)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 18, cursor: 'pointer', padding: 0,
+          boxShadow: '2px 2px 0 var(--ink)',
+        }}
+      >
+        {user.emoji || '🎤'}
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute', top: 44, right: 0, width: 220,
+          background: 'var(--bg)', color: 'var(--ink)',
+          border: '2.5px solid var(--ink)', borderRadius: 12,
+          boxShadow: '4px 4px 0 var(--ink)', overflow: 'hidden',
+          fontFamily: 'var(--mono)', fontSize: 13, zIndex: 100,
+        }}>
+          <div style={{ padding: 12, borderBottom: '1.5px dashed var(--ink)' }}>
+            <div style={{ fontFamily: 'var(--display)', fontSize: 18, lineHeight: 1 }}>
+              {user.name || user.username || 'you'}
+            </div>
+            <div style={{ opacity: 0.7, fontSize: 11, marginTop: 2 }}>
+              {user.handle ? `@${user.handle}` : ''}{user.handle ? ' · ' : ''}{user.role}
+            </div>
+          </div>
+
+          {items.map(([label, href]) => (
+            <div
+              key={label}
+              onClick={() => go(href)}
+              style={{ padding: '10px 12px', cursor: 'pointer' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--lime)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              {label}
+            </div>
+          ))}
+
+          <div
+            onClick={onSignOut}
+            style={{
+              padding: '10px 12px', cursor: 'pointer',
+              borderTop: '1.5px dashed var(--ink)',
+              color: 'var(--pink)', fontWeight: 700,
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--lime)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            sign out →
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const router   = useRouter();
   const { dark, toggleDark } = useTheme();
   const { user, logout } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const nav = user?.role === 'writer' ? WRITER_NAV : BUYER_NAV;
 
@@ -91,10 +178,7 @@ export default function Navbar() {
             <div style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '3px 8px', background: user.role === 'writer' ? 'var(--pink)' : 'var(--blue)', color: user.role === 'writer' ? 'var(--ink)' : 'var(--bg)', border: '1.5px solid var(--ink)', borderRadius: 999 }}>
               {user.role === 'writer' ? '✍️ writer' : '🎧 artist'}
             </div>
-            <Link href="/profile" style={{ textDecoration: 'none' }}>
-              <div style={{ width: 34, height: 34, borderRadius: 999, background: user.color || 'var(--pink)', border: '2px solid var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, cursor: 'pointer', boxShadow: '2px 2px 0 var(--ink)' }}>{user.emoji || '🎤'}</div>
-            </Link>
-            <button onClick={handleLogout} style={{ fontFamily: 'var(--mono)', fontSize: 11, cursor: 'pointer', background: 'transparent', border: '1.5px solid var(--ink)', borderRadius: 6, padding: '5px 10px', color: 'var(--ink)' }}>out</button>
+            <UserMenu user={user} onSignOut={handleLogout} />
           </div>
         ) : (
           <div className="hl-desktop" style={{ gap: 8, alignItems: 'center', flexShrink: 0 }}>
@@ -104,27 +188,33 @@ export default function Navbar() {
         )}
 
         {/* Hamburger — mobile only */}
-        <button className="hl-hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? '✕' : '☰'}
+        <button className="hl-hamburger" onClick={() => setMobileOpen(!mobileOpen)}>
+          {mobileOpen ? '✕' : '☰'}
         </button>
       </header>
 
       {/* Mobile menu */}
-      <div className={`hl-mobile-menu${menuOpen ? ' open' : ''}`}>
+      <div className={`hl-mobile-menu${mobileOpen ? ' open' : ''}`}>
         {nav.map(n => (
-          <Link key={n.href} href={n.href} onClick={() => setMenuOpen(false)} style={{ ...navLinkStyle(n), padding: '12px 14px', borderRadius: 8 }}>
+          <Link key={n.href} href={n.href} onClick={() => setMobileOpen(false)} style={{ ...navLinkStyle(n), padding: '12px 14px', borderRadius: 8 }}>
             {n.label}
           </Link>
         ))}
         <div style={{ height: 1, background: 'var(--ink)', opacity: 0.15, margin: '6px 0' }} />
         {user ? (
-          <button onClick={() => { handleLogout(); setMenuOpen(false); }} style={{ fontFamily: 'var(--mono)', fontSize: 13, cursor: 'pointer', background: 'transparent', border: '1.5px solid var(--ink)', borderRadius: 8, padding: '10px 14px', color: 'var(--ink)', textAlign: 'left' }}>
-            log out
-          </button>
+          <>
+            <Link href="/profile" onClick={() => setMobileOpen(false)} style={{ fontFamily: 'var(--mono)', fontSize: 13, color: 'inherit', textDecoration: 'none', padding: '10px 14px', display: 'block' }}>my profile</Link>
+            <Link href={user.role === 'writer' ? '/dashboard/writer' : '/dashboard/buyer'} onClick={() => setMobileOpen(false)} style={{ fontFamily: 'var(--mono)', fontSize: 13, color: 'inherit', textDecoration: 'none', padding: '10px 14px', display: 'block' }}>
+              {user.role === 'writer' ? 'earnings' : 'my licenses'}
+            </Link>
+            <button onClick={() => { handleLogout(); setMobileOpen(false); }} style={{ fontFamily: 'var(--mono)', fontSize: 13, cursor: 'pointer', background: 'transparent', border: '1.5px solid var(--ink)', borderRadius: 8, padding: '10px 14px', color: 'var(--pink)', fontWeight: 700, textAlign: 'left', width: '100%' }}>
+              sign out →
+            </button>
+          </>
         ) : (
           <div style={{ display: 'flex', gap: 8 }}>
-            <Link href="/auth?tab=login" onClick={() => setMenuOpen(false)} style={{ flex: 1, fontFamily: 'var(--mono)', fontSize: 13, color: 'inherit', textDecoration: 'none', padding: '10px 14px', border: '1.5px solid var(--ink)', borderRadius: 8, textAlign: 'center' }}>log in</Link>
-            <Link href="/auth?tab=register" onClick={() => setMenuOpen(false)} style={{ flex: 1, fontFamily: 'var(--display)', fontSize: 14, textDecoration: 'none', color: 'var(--ink)', background: 'var(--lime)', border: '2px solid var(--ink)', borderRadius: 8, padding: '10px 14px', textAlign: 'center', boxShadow: '3px 3px 0 var(--ink)' }}>join</Link>
+            <Link href="/auth?tab=login" onClick={() => setMobileOpen(false)} style={{ flex: 1, fontFamily: 'var(--mono)', fontSize: 13, color: 'inherit', textDecoration: 'none', padding: '10px 14px', border: '1.5px solid var(--ink)', borderRadius: 8, textAlign: 'center' }}>log in</Link>
+            <Link href="/auth?tab=register" onClick={() => setMobileOpen(false)} style={{ flex: 1, fontFamily: 'var(--display)', fontSize: 14, textDecoration: 'none', color: 'var(--ink)', background: 'var(--lime)', border: '2px solid var(--ink)', borderRadius: 8, padding: '10px 14px', textAlign: 'center', boxShadow: '3px 3px 0 var(--ink)' }}>join</Link>
           </div>
         )}
       </div>

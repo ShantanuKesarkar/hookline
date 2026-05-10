@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { use } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -8,20 +8,25 @@ import BigBtn from '@/components/BigBtn';
 import Sticker from '@/components/Sticker';
 import SectionHeader from '@/components/SectionHeader';
 import Tag from '@/components/Tag';
-import { lyricById, writerById } from '@/lib/mockData';
+import { api } from '@/lib/api';
 
-export default function CheckoutPage({ params }) {
-  const { id } = use(params);
+function CheckoutInner({ id }) {
   const searchParams = useSearchParams();
   const tier = searchParams.get('tier') || 'non';
-  const lyric = lyricById(id);
-  const writer = writerById(lyric?.writer);
+  const [lyric, setLyric] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [done, setDone] = useState(false);
 
-  if (!lyric) return <div style={{ padding: 40, fontFamily: 'var(--mono)' }}>Lyric not found.</div>;
+  useEffect(() => {
+    api.getLyric(id).then(setLyric).catch(console.error).finally(() => setLoading(false));
+  }, [id]);
 
+  if (loading) return <div style={{ textAlign: 'center', padding: '80px 0', fontFamily: 'var(--mono)', opacity: 0.5 }}>loading...</div>;
+  if (!lyric) return <div style={{ padding: 40, fontFamily: 'var(--mono)' }}>lyric not found.</div>;
+
+  const writer = lyric.writer || {};
   const isEx = tier === 'ex';
-  const price = isEx ? lyric.exclusive : lyric.price;
+  const price = isEx ? (lyric.exclusive_price ?? 0) : (lyric.price ?? 0);
   const fee = Math.round(price * 0.05);
   const total = price + fee;
 
@@ -34,14 +39,14 @@ export default function CheckoutPage({ params }) {
           fontSize: 'clamp(48px, 7vw, 96px)', lineHeight: 0.9, letterSpacing: '-0.03em',
         }}>IT'S YOURS,<br />BABY.</h1>
         <div style={{ marginTop: 16, fontFamily: 'var(--mono)', fontSize: 14, lineHeight: 1.5 }}>
-          you bought <b>{lyric.title}</b> ({isEx ? 'exclusive' : 'non-exclusive'}) from {writer.handle}.<br />
+          you bought <b>{lyric.title}</b> ({isEx ? 'exclusive' : 'non-exclusive'}) from {writer.handle || 'the writer'}.<br />
           full lyric is in your inbox. license pdf is downloadable below. go make a hit.
         </div>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32, flexWrap: 'wrap' }}>
           <Link href={`/lyrics/${id}`} style={{ textDecoration: 'none' }}>
             <BigBtn size="lg" color="var(--lime)">↓ download license</BigBtn>
           </Link>
-          <Link href="/" style={{ textDecoration: 'none' }}>
+          <Link href="/browse" style={{ textDecoration: 'none' }}>
             <BigBtn size="lg" color="var(--bg)">back to browse</BigBtn>
           </Link>
         </div>
@@ -62,7 +67,7 @@ export default function CheckoutPage({ params }) {
           }}>
             <LyricCover lyric={lyric} size={120} />
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 11, opacity: 0.7 }}>from {writer.handle}</div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 11, opacity: 0.7 }}>from {writer.handle || 'unknown'}</div>
               <div style={{ fontFamily: 'var(--display)', fontSize: 28, lineHeight: 1, marginTop: 4 }}>{lyric.title}</div>
               <div style={{ marginTop: 10 }}>
                 <Sticker color={isEx ? 'var(--pink)' : 'var(--lime)'} size={11} rotate={-3}>
@@ -128,5 +133,14 @@ export default function CheckoutPage({ params }) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage({ params }) {
+  const { id } = use(params);
+  return (
+    <Suspense fallback={<div style={{ textAlign: 'center', padding: '80px 0', fontFamily: 'var(--mono)', opacity: 0.5 }}>loading...</div>}>
+      <CheckoutInner id={id} />
+    </Suspense>
   );
 }
