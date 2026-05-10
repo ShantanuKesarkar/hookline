@@ -69,7 +69,7 @@ function AuthForm() {
     try {
       if (tab === 'login') {
         const me = await login(email, pw);
-        router.push(me.role === 'writer' ? '/home' : '/browse');
+        router.push('/home');
       } else {
         const me = await signup({
           handle: handle.startsWith('@') ? handle : `@${handle}`,
@@ -77,7 +77,7 @@ function AuthForm() {
           bio, vibes, emoji: role === 'writer' ? '✍️' : '🎧',
           color: role === 'writer' ? '#FF3D8A' : '#2D52FF',
         });
-        router.push(me.role === 'writer' ? '/post' : '/browse');
+        router.push(me.role === 'writer' ? '/post' : '/home');
       }
     } catch (err) { setError(err.message || 'something went wrong'); }
     finally { setBusy(false); }
